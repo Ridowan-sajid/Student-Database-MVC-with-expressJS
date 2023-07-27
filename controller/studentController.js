@@ -1,6 +1,9 @@
 const mongoose = require("mongoose");
 const Student = require("../model/Student");
 const fs = require("fs");
+const { promisify } = require("util");
+const accessPromise = promisify(fs.access);
+const unlinkPromise = promisify(fs.unlink);
 
 const getAllStudent = async (req, res) => {
   try {
@@ -72,20 +75,30 @@ const deleteStudent = async (req, res) => {
     const imagePath = user.image;
     console.log(uploadPath + imagePath);
     if (imagePath) {
-      fs.access(uploadPath + imagePath, (err) => {
-        if (err) {
-          console.log(err);
-        } else {
-          fs.unlink(uploadPath + imagePath, async (err) => {
-            if (err) {
-              throw err;
-            } else {
-              await Student.deleteOne({ _id: req.params.id });
-              console.log("Image deleted successfully");
-            }
-          });
-        }
-      });
+      // fs.access(uploadPath + imagePath, (err) => {
+      //   if (err) {
+      //     console.log(err);
+      //   } else {
+      //     fs.unlink(uploadPath + imagePath, async (err) => {
+      //       if (err) {
+      //         throw err;
+      //       } else {
+      //         await Student.deleteOne({ _id: req.params.id });
+      //         console.log("Image deleted successfully");
+      //       }
+      //     });
+      //   }
+      // });
+
+      accessPromise(uploadPath + imagePath)
+        .then(() => unlinkPromise(uploadPath + imagePath))
+        .then(async () => {
+          await Student.deleteOne({ _id: req.params.id });
+          console.log("Image deleted successfully");
+        })
+        .catch((err) => {
+          console.log("User image doesn't exist");
+        });
     } else {
       await Student.deleteOne({ _id: req.params.id });
     }
