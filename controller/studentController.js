@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const Student = require("../model/Student");
+const fs = require("fs");
 
 const getAllStudent = async (req, res) => {
   try {
@@ -65,7 +66,30 @@ const updateStudent = async (req, res) => {
 
 const deleteStudent = async (req, res) => {
   try {
-    await Student.deleteOne({ _id: req.params.id });
+    const user = await Student.findById(req.params.id);
+
+    const uploadPath = "./public/upload/";
+    const imagePath = user.image;
+    console.log(uploadPath + imagePath);
+    if (imagePath) {
+      fs.access(uploadPath + imagePath, (err) => {
+        if (err) {
+          console.log(err);
+        } else {
+          fs.unlink(uploadPath + imagePath, async (err) => {
+            if (err) {
+              throw err;
+            } else {
+              await Student.deleteOne({ _id: req.params.id });
+              console.log("Image deleted successfully");
+            }
+          });
+        }
+      });
+    } else {
+      await Student.deleteOne({ _id: req.params.id });
+    }
+
     // res.status(200).json({ data: data });
     res.redirect("/student");
   } catch (err) {

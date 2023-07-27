@@ -2,6 +2,10 @@ var express = require("express");
 const studentRoute = require("./route/studentRoute");
 const mongoose = require("mongoose");
 var app = express();
+const {
+  handle404Error,
+  handleError,
+} = require("./middlewares/errorMiddleware");
 
 //set view engine
 app.set("view engine", "ejs");
@@ -18,6 +22,10 @@ mongoose
   .catch((err) => console.log(err));
 
 app.use("/student", studentRoute);
+
+app.use(handleError);
+
+app.use(handle404Error);
 
 app.listen(3000, function () {
   console.log("server is running..");
