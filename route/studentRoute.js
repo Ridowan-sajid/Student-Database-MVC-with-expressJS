@@ -15,12 +15,14 @@ router.get("/", getAllStudent);
 router.get("/:id", getSingleStudent);
 router.post(
   "/",
+  upload.single("avatar"), //N.B. all the time add upload middleware at first
   registerValidation,
   validationCheck,
-  upload.single("avatar"),
   createStudent
 );
-router.post("/update/:id", updateStudent);
+router.post("/update/:id", registerValidation, validationCheck, updateStudent);
 router.post("/delete/:id", deleteStudent);
 
 module.exports = router;
+
+//we didn't used put or delete method because put or delete method can't be accessed in <form>

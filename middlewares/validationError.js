@@ -5,9 +5,11 @@ const registerValidation = [
     .trim()
     .notEmpty()
     .withMessage("Name can't be empty")
+    .matches(/[A-Za-z ]+$/)
+    .withMessage("Name must have letters or underscore")
     .isLength({ min: 7 })
-    .withMessage("Name must have at least 7 characters")
-    .matches(/^[A-Z][a-z ]+$/),
+    .withMessage("Name must have at least 7 characters"),
+
   check("course").trim().notEmpty().withMessage("Course can't be empty"),
   check("date")
     .trim()
